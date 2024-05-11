@@ -12,6 +12,10 @@ public class BoardUtil {
     public static final int FILES = 8;
     public static final int RANKS = 8;
 
+    public static boolean turn = true;
+
+    public static boolean checkingIsCheck = false, gettingAttacks = false;
+
     public static int tileIndexFromRankFile(final int file, final int rank) { return rank * 8 + file; }
 
     public static boolean isFirstFile(final int index) { return index % 8 == 0; }
@@ -34,16 +38,20 @@ public class BoardUtil {
         final List<Tile> attacks = new ArrayList<>();
         for (final Piece piece : board.pieces){
             if (piece.alliance != alliance) continue;
+            gettingAttacks = true;
             final List<Move> legals = piece.getLegals(board);
             for (final Move move : legals){
                 attacks.add(board.tiles[move.end]);
             }
         }
+        gettingAttacks = false;
         return attacks;
     }
 
     public static boolean isCheck(final boolean alliance, final Board board){
         Piece king = null;
+        if (checkingIsCheck) return false;
+        checkingIsCheck = true;
         for (final Piece piece : board.pieces){
             if (piece.alliance == alliance && piece.type == Type.King){
                 king = piece;
@@ -54,6 +62,7 @@ public class BoardUtil {
 
         // calculate every square a specific alliance attacks
         final List<Tile> allianceAttacks = getAllianceAttacks(!alliance, board);
+        checkingIsCheck = false;
         for (final Tile attackedTile : allianceAttacks){
             if (king.tile.index == attackedTile.index) return true;
         }

@@ -90,15 +90,20 @@ public class Board {
         for (final Piece piece : pieces) piece.justMoved = false;
 
         Tile start = tiles[move.start], end = tiles[move.end];
+        if (move.attackMove){
+            move.taken.tile.update(null);
+        }
         start.update(null);
         end.update(move.piece);
 
         move.piece.tile = end;
 
-        if (test){
+        if (!test){
             move.piece.moved = true;
             move.piece.justMoved = true;
         }
+
+        BoardUtil.turn = !BoardUtil.turn;
 
         if (move.attackMove) move.taken.dead = true;
     }
@@ -108,7 +113,10 @@ public class Board {
 
         Tile start = tiles[move.start], end = tiles[move.end];
         start.update(move.piece);
-        end.update(move.taken);
+        end.update(null);
+        if (move.attackMove){
+            move.taken.tile.update(move.taken);
+        }
 
         move.piece.tile = start;
     }

@@ -7,12 +7,13 @@ public class Move {
     public final Piece piece;
     public final Piece taken;
 
-    public boolean attackMove, illegal;
+    public boolean attackMove, illegal = false, castleQ = false, castleK = false, enPassant;
 
     public Move(final int start, final int end, final Piece piece, final Piece taken){
         this.start = start; this.end = end; this.piece = piece; this.taken = taken;
         illegal = false;
         attackMove = taken != null;
+        enPassant = false;
     }
 
     public boolean equals(Move other){

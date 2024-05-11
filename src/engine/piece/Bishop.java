@@ -43,7 +43,6 @@ public class Bishop extends Piece {
                 }
             }
         }
-
         for (Move move : moves){
             board.makeMove(move, true);
             if (BoardUtil.isCheck(alliance, board)) move.illegal = true;

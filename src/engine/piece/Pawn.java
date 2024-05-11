@@ -41,12 +41,16 @@ public class Pawn extends Piece {
         if (!BoardUtil.isFirstFile(start)){
             int leftDiag = alliance ? -9 : 7, rightDiag = alliance ? -7 : 9;
             end = start + leftDiag;
-            if (board.tiles[end].occupied && board.tiles[end].piece.alliance != alliance){
-                moves.add(new Move(start, end, this, board.tiles[end].piece));
+            if (end >= 0 && end <= 63){
+                if (board.tiles[end].occupied && board.tiles[end].piece.alliance != alliance){
+                    moves.add(new Move(start, end, this, board.tiles[end].piece));
+                }
             }
             end = start + rightDiag;
-            if (board.tiles[end].occupied && board.tiles[end].piece.alliance != alliance){
-                moves.add(new Move(start, end, this, board.tiles[end].piece));
+            if (end > -1 && end < 64){
+                if (board.tiles[end].occupied && board.tiles[end].piece.alliance != alliance){
+                    moves.add(new Move(start, end, this, board.tiles[end].piece));
+                }
             }
         }
 
@@ -89,6 +93,10 @@ public class Pawn extends Piece {
         }
 
         for (Move move : moves){
+            if (move.end < 0 || move.end > 63){
+                move.illegal = true;
+                continue;
+            }
             board.makeMove(move, true);
             if (BoardUtil.isCheck(alliance, board)) move.illegal = true;
             board.unMakeMove(move);
