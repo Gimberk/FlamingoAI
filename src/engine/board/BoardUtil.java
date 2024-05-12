@@ -84,4 +84,6 @@ public class BoardUtil {
         }
         else return true;
     }
+
+    
 }

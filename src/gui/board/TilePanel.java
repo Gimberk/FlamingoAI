@@ -6,6 +6,8 @@ import gui.GameFrame;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 
@@ -22,6 +24,16 @@ public class TilePanel extends JPanel {
 
         setSize(frame.tilePanelDimensions);
         setBackground(color ? frame.lightTileColor : frame.darkTileColor);
+
+        addMouseListener(new MouseAdapter() {
+            public void mouseEntered(MouseEvent me) {
+                mouseEnter();
+            }
+
+            public void mouseExited(MouseEvent me){
+                mouseExit();
+            }
+        });
     }
 
     public void update(){
@@ -50,5 +62,13 @@ public class TilePanel extends JPanel {
             System.out.println(ex.getMessage());
             System.out.println("Invalid Piece set: " + imgPath);
         }
+    }
+
+    private void mouseEnter(){
+        System.out.println(tile.index);
+    }
+
+    private void mouseExit(){
+        System.out.println(tile.index);
     }
 }
