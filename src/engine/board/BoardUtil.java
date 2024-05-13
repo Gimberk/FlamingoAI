@@ -91,48 +91,56 @@ public class BoardUtil {
         return true;
     }
 
-    public static int search(final Board board, final int depth, int alpha, final int beta){
-        if (depth == 0){
-            return evaluatePosition(board);
-        }
-
-        if (isCheckMate(turn, board) || isCheckMate(!turn, board)) return -99999;
-
-        List<Move> moves = new ArrayList<>();
+    public static List<Move> getAllianceMoves(final boolean alliance, final Board board){
+        final List<Move> moves = new ArrayList<>();
         for (final Piece piece : board.pieces){
+            if (alliance != piece.alliance) continue;
             moves.addAll(piece.getLegals(board));
         }
-
-        for (final Move move : moves){
-            board.makeMove(move, true);
-            final int eval = -search(board, depth-1, -beta, -alpha); // this negative sign is important as it flips who the position is good for
-            board.unMakeMove(move);
-            if (eval >= beta) return beta;
-            alpha = Math.max(alpha, eval);
-        }
-
-        return alpha;
+        return moves;
     }
 
-    public List<Move> orderMoves(final List<Move> moves){
-        for (final Move move : moves){
-            int guess = 0;
+    public static Move search(final Board board, final int depth){
+        final List<Move> positions = getAllianceMoves(turn, board);
+        final boolean currTurn = turn;
+        for (final Move move : positions){
+            board.makeMove(move, true);
+            if (depth == 2){
+                final List<Move> responses = getAllianceMoves(turn, board);
+                for (final Move response : responses){
+                    // play them and get the min eval for black from each move and set that to the white move's overall eval
+                }
+            }
+            else move.evaluation = evaluatePosition(board);
+            board.unMakeMove(move);
+        }
+        turn = currTurn;
+        Move best = positions.getFirst();
+        for (final Move move : positions){
+            System.out.println("Eval: " + move.evaluation);
+            if (turn){
+                if (move.evaluation > best.evaluation) best = move;
+            }
+            else{
+                if (move.evaluation < best.evaluation) best = move;
+            }
 
         }
+        System.out.println("Best Eval: " + best.evaluation);
+        return best;
     }
 
     public static int evaluatePosition(final Board board){
         int whiteEval = countMaterial(board, true);
         int blackEval = countMaterial(board, false);
 
-        final int perspective = turn ? 1 : -1;
-        final int eval = (whiteEval-blackEval)/100;
-        return eval*perspective;
+        return (whiteEval-blackEval)/100;
     }
 
     private static int countMaterial(final Board board, final boolean alliance){
         int queens = 0, rooks = 0, bishops = 0, knights = 0, pawns = 0;
         for (Piece piece : board.pieces){
+            if (piece.dead) continue;
             if (piece.type == Type.King || piece.alliance != alliance) continue;
             switch (piece.type){
                 case Bishop -> bishops++;
