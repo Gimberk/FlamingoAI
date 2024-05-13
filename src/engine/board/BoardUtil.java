@@ -6,11 +6,18 @@ import engine.piece.Type;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class BoardUtil {
     public static final int TILES = 64;
     public static final int FILES = 8;
     public static final int RANKS = 8;
+
+    public static final int pawnValue = 100;
+    public static final int knightValue = 300;
+    public static final int bishopValue = 300;
+    public static final int rookValue = 500;
+    public static final int queenValue = 900;
 
     public static boolean turn = true;
 
@@ -80,10 +87,68 @@ public class BoardUtil {
 
         if (!isCheck(alliance, board)){
             System.out.println("Stalemate!!!!");
-            return false;
         }
-        else return true;
+        return true;
     }
 
-    
+    public static int search(final Board board, final int depth, int alpha, final int beta){
+        if (depth == 0){
+            return evaluatePosition(board);
+        }
+
+        if (isCheckMate(turn, board) || isCheckMate(!turn, board)) return -99999;
+
+        List<Move> moves = new ArrayList<>();
+        for (final Piece piece : board.pieces){
+            moves.addAll(piece.getLegals(board));
+        }
+
+        for (final Move move : moves){
+            board.makeMove(move, true);
+            final int eval = -search(board, depth-1, -beta, -alpha); // this negative sign is important as it flips who the position is good for
+            board.unMakeMove(move);
+            if (eval >= beta) return beta;
+            alpha = Math.max(alpha, eval);
+        }
+
+        return alpha;
+    }
+
+    public List<Move> orderMoves(final List<Move> moves){
+        for (final Move move : moves){
+            int guess = 0;
+
+        }
+    }
+
+    public static int evaluatePosition(final Board board){
+        int whiteEval = countMaterial(board, true);
+        int blackEval = countMaterial(board, false);
+
+        final int perspective = turn ? 1 : -1;
+        final int eval = (whiteEval-blackEval)/100;
+        return eval*perspective;
+    }
+
+    private static int countMaterial(final Board board, final boolean alliance){
+        int queens = 0, rooks = 0, bishops = 0, knights = 0, pawns = 0;
+        for (Piece piece : board.pieces){
+            if (piece.type == Type.King || piece.alliance != alliance) continue;
+            switch (piece.type){
+                case Bishop -> bishops++;
+                case Knight -> knights++;
+                case Pawn -> pawns++;
+                case Rook -> rooks++;
+                case Queen -> queens++;
+            }
+        }
+
+        int material = 0;
+        material += queens * queenValue;
+        material += rooks * rookValue;
+        material += pawns * pawnValue;
+        material += bishops * bishopValue;
+        material += knights * knightValue;
+        return material;
+    }
 }

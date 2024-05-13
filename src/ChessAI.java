@@ -1,3 +1,5 @@
+import engine.board.Board;
+import engine.board.BoardUtil;
 import gui.GameFrame;
 
 public class ChessAI {
@@ -7,6 +9,7 @@ public class ChessAI {
     public static void main(String[] args) {
         //new GameFrame(startingFen);
 
-
+        Board board = new Board(startingFen);
+        System.out.println(BoardUtil.evaluatePosition(board));
     }
 }

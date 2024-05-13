@@ -98,10 +98,13 @@ public class Board {
 
         move.piece.tile = end;
 
-        if (!test){
-            move.piece.moved = true;
-            move.piece.justMoved = true;
+        if (test){
+            move.piece.prevMoved = move.piece.moved;
+            move.piece.prevJustMoved = move.piece.justMoved;
         }
+
+        move.piece.moved = true;
+        move.piece.justMoved = true;
 
         BoardUtil.turn = !BoardUtil.turn;
 
@@ -117,6 +120,11 @@ public class Board {
         if (move.attackMove){
             move.taken.tile.update(move.taken);
         }
+
+        move.piece.moved = move.piece.prevMoved;
+        move.piece.justMoved = move.piece.prevJustMoved;
+
+        BoardUtil.turn = !BoardUtil.turn;
 
         move.piece.tile = start;
     }

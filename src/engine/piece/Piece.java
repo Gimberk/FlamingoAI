@@ -13,7 +13,7 @@ public abstract class Piece {
     public final List<Integer> directions;
 
     public Tile tile;
-    public boolean moved, justMoved, dead;
+    public boolean moved, justMoved, dead, prevMoved, prevJustMoved;
 
     public Piece(final int index, final Type type, final Tile tile, final boolean alliance, final List<Integer> directions){
         char idTemp;
