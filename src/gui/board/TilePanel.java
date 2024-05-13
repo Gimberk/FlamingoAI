@@ -65,10 +65,8 @@ public class TilePanel extends JPanel {
     }
 
     private void mouseEnter(){
-        System.out.println(tile.index);
     }
 
     private void mouseExit(){
-        System.out.println(tile.index);
     }
 }

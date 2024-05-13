@@ -34,6 +34,7 @@ public class Rook extends Piece{
                 Tile tile = board.tiles[end];
                 if (tile.occupied && alliance == tile.piece.alliance) break;
                 moves.add(new Move(start, end, this, tile.piece));
+                if (tile.occupied) break;
 
                 if (dir == 1 || dir == 9 || dir == -7){
                     if (BoardUtil.isLastFile(end)) break;

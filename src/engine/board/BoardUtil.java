@@ -105,11 +105,52 @@ public class BoardUtil {
         final boolean currTurn = turn;
         for (final Move move : positions){
             board.makeMove(move, true);
-            if (depth == 2){
+            if (depth >= 2){
                 final List<Move> responses = getAllianceMoves(turn, board);
+                final boolean tt = turn;
                 for (final Move response : responses){
                     // play them and get the min eval for black from each move and set that to the white move's overall eval
+                    board.makeMove(response, true);
+                    if (depth >= 3){
+                        final List<Move> opRes = getAllianceMoves(turn, board);
+                        final boolean ttt = turn;
+                        for (final Move opRe : opRes){
+                            board.makeMove(opRe, true);
+                            opRe.evaluation = evaluatePosition(board);
+                            board.unMakeMove(opRe);
+                        }
+                        turn = ttt;
+                        if (opRes.isEmpty()){
+                            response.evaluation = turn ? -9999 : 9999;
+                        }
+                        else{
+
+                            Move best = opRes.getFirst();
+                            for (final Move opRe : opRes){
+                                if (turn){
+                                    if (opRe.evaluation > best.evaluation) best = opRe;
+                                }
+                                else{
+                                    if (opRe.evaluation < best.evaluation) best = opRe;
+                                }
+                            }
+                            response.evaluation = best.evaluation;
+                        }
+                    }
+                    else response.evaluation = evaluatePosition(board);
+                    board.unMakeMove(response);
                 }
+                turn = tt;
+                Move best = responses.getFirst();
+                for (final Move response : responses){
+                    if (turn){
+                        if (response.evaluation > best.evaluation) best = response;
+                    }
+                    else{
+                        if (response.evaluation < best.evaluation) best = response;
+                    }
+                }
+                move.evaluation = best.evaluation;
             }
             else move.evaluation = evaluatePosition(board);
             board.unMakeMove(move);
@@ -124,7 +165,6 @@ public class BoardUtil {
             else{
                 if (move.evaluation < best.evaluation) best = move;
             }
-
         }
         System.out.println("Best Eval: " + best.evaluation);
         return best;

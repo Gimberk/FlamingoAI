@@ -12,7 +12,7 @@ public class GameFrame {
     public final Board board;
 
     public Color lightTileColor = new Color(224, 186, 135);
-    public Color darkTileColor = new Color(105, 72, 27);
+    public Color darkTileColor = new Color(148, 108, 48);
 
     private final Dimension frameDimensions = new Dimension(600, 600);
     public final Dimension boardPanelDimensions = new Dimension(400, 600);

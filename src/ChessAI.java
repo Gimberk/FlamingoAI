@@ -8,7 +8,7 @@ public class ChessAI {
     public final static String startingFen = "8/8/6q/pk5P/1p3rP1/2p2PK1/8/8 w - - 0 1";
 
     public static void main(String[] args) {
-        //new GameFrame(startingFen);
+        new GameFrame(startingFen);
 
         Board board = new Board(startingFen);
         board.showBoard();
@@ -16,10 +16,10 @@ public class ChessAI {
             piece.moved = true;
         }
 
-        board.makeMove(BoardUtil.search(board, 1), false);
+        board.makeMove(BoardUtil.search(board, 3), false);
         board.showBoard();
 
-        board.makeMove(BoardUtil.search(board, 1), false);
+        board.makeMove(BoardUtil.search(board, 3), false);
         board.showBoard();
     }
 }
