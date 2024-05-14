@@ -2,6 +2,7 @@ package gui;
 
 import engine.board.Board;
 import gui.board.BoardPanel;
+import gui.board.TilePanel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -22,6 +23,8 @@ public class GameFrame {
     public final Dimension tilePanelDimensions = new Dimension(30, 30);
 
     public final BoardPanel boardPanel;
+
+    public TilePanel selected = null;
 
     public GameFrame(final String fen){
         board = new Board(fen);
