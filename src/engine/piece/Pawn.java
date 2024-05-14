@@ -93,6 +93,11 @@ public class Pawn extends Piece {
         }
 
         for (Move move : moves){
+            if (!(!BoardUtil.isLastFile(start) &&
+                    (board.tiles[start+1].occupied &&
+                            board.tiles[start+1].piece.justMoved))){
+                if (move.equals(new Move(start, start-7, this, board.tiles[start-7].piece))) move.illegal = true;
+            }
             if (move.end < 0 || move.end > 63){
                 move.illegal = true;
                 continue;

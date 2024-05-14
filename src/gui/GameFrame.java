@@ -7,22 +7,24 @@ import javax.swing.*;
 import java.awt.*;
 
 public class GameFrame {
-    public JFrame frame;
+    public final JFrame frame;
 
     public final Board board;
 
-    public Color lightTileColor = new Color(224, 186, 135);
-    public Color darkTileColor = new Color(148, 108, 48);
+    public final Color lightTileColor = new Color(224, 186, 135);
+    public final Color darkTileColor = new Color(148, 108, 48);
+    public final Color lightTileHighLightColor = new Color(212, 174, 123);
+    public final Color darkTileHighLightColor = new Color(136, 96, 36);
+    public final Color highlightColor = new Color(255, 63, 63);
 
     private final Dimension frameDimensions = new Dimension(600, 600);
     public final Dimension boardPanelDimensions = new Dimension(400, 600);
     public final Dimension tilePanelDimensions = new Dimension(30, 30);
 
-    public final JPanel boardPanel;
+    public final BoardPanel boardPanel;
 
     public GameFrame(final String fen){
         board = new Board(fen);
-        board.showBoardWithMoves(board.pieces.getFirst());
 
         boardPanel = new BoardPanel(this);
 
