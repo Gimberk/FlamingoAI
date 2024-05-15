@@ -16,6 +16,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import static engine.board.BoardUtil.*;
+
 public class TilePanel extends JPanel {
     public final Tile tile;
 
@@ -79,8 +81,11 @@ public class TilePanel extends JPanel {
     }
 
     private void mouseRelease(MouseEvent me){
+        if (turn && !frame.board.whitePlayer) return;
+        else if (!turn && !frame.board.blackPlayer) return;
+
         if (me.getButton() == 3) frame.selected = null;
-        else if (tile.occupied && tile.piece.alliance == BoardUtil.turn) frame.selected = this;
+        else if (tile.occupied && tile.piece.alliance == turn) frame.selected = this;
         else if (frame.selected != null) {
             final Move move = new Move(frame.selected.tile.index, tile.index, frame.selected.tile.piece, tile.piece);
             final List<Move> moves = frame.selected.tile.piece.getLegals(frame.board);

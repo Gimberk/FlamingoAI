@@ -3,6 +3,8 @@ package engine.board;
 import engine.piece.Move;
 import engine.piece.Piece;
 import engine.piece.Type;
+import gui.GameFrame;
+import gui.board.TilePanel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,6 +22,33 @@ public class BoardUtil {
     public static final int queenValue = 900;
 
     public static boolean turn = true;
+
+    private static int depth;
+
+    private static GameFrame frame;
+
+    public static void init(final Board board, final int depth_m, final GameFrame f){
+        depth = depth_m; frame = f;
+    }
+
+    public static void switchTurn(final Board board){
+        turn = !turn;
+        if (turn && board.whitePlayer || (!turn && board.blackPlayer)) return;
+        System.out.println(turn);
+        System.out.println(getAllianceMoves(turn, board).size());
+        final Move best = search(board, depth);
+        if (best != null){
+            board.makeMove(best, false);
+            board.showBoard();
+
+            for (final TilePanel panel : frame.boardPanel.tiles){
+                panel.removeAll();
+                panel.repaint();
+                panel.revalidate();
+                panel.update();
+            }
+        }
+    }
 
     public static boolean checkingIsCheck = false, gettingAttacks = false;
 
@@ -103,6 +132,7 @@ public class BoardUtil {
     public static Move search(final Board board, final int depth){
         final List<Move> positions = getAllianceMoves(turn, board);
         final boolean currTurn = turn;
+        System.out.println(turn);
         for (final Move move : positions){
             board.makeMove(move, true);
             if (depth >= 2){
@@ -141,33 +171,42 @@ public class BoardUtil {
                     board.unMakeMove(response);
                 }
                 turn = tt;
-                Move best = responses.getFirst();
-                for (final Move response : responses){
-                    if (turn){
-                        if (response.evaluation > best.evaluation) best = response;
+                if (responses.isEmpty()) move.evaluation = -999999;
+                else{
+                    Move best = responses.getFirst();
+                    for (final Move response : responses){
+                        if (turn){
+                            if (response.evaluation > best.evaluation) best = response;
+                        }
+                        else{
+                            if (response.evaluation < best.evaluation) best = response;
+                        }
                     }
-                    else{
-                        if (response.evaluation < best.evaluation) best = response;
-                    }
+                    move.evaluation = best.evaluation;
                 }
-                move.evaluation = best.evaluation;
             }
             else move.evaluation = evaluatePosition(board);
             board.unMakeMove(move);
         }
         turn = currTurn;
-        Move best = positions.getFirst();
-        for (final Move move : positions){
-            System.out.println("Eval: " + move.evaluation);
-            if (turn){
-                if (move.evaluation > best.evaluation) best = move;
-            }
-            else{
-                if (move.evaluation < best.evaluation) best = move;
-            }
+        if (positions.isEmpty()){
+            System.out.println("CHECKMATE!!!");
+            return null;
         }
-        System.out.println("Best Eval: " + best.evaluation);
-        return best;
+        else{
+            Move best = positions.getFirst();
+            for (final Move move : positions){
+                System.out.println("Eval: " + move.evaluation);
+                if (turn){
+                    if (move.evaluation > best.evaluation) best = move;
+                }
+                else{
+                    if (move.evaluation < best.evaluation) best = move;
+                }
+            }
+            System.out.println("Best Eval: " + best.evaluation);
+            return best;
+        }
     }
 
     public static int evaluatePosition(final Board board){

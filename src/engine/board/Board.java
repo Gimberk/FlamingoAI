@@ -1,6 +1,7 @@
 package engine.board;
 
 import engine.piece.*;
+import gui.GameFrame;
 
 import java.util.*;
 
@@ -8,9 +9,14 @@ public class Board {
     public final List<Piece> pieces = new ArrayList<>();
     public final Tile[] tiles = new Tile[64];
 
+    public final boolean whitePlayer;
+    public final boolean blackPlayer;
+
     private final char[][] tileGui = new char[BoardUtil.RANKS][BoardUtil.FILES];
 
-    public Board(String fen){
+    public Board(final String fen, final int depth, final boolean white, final boolean black, final GameFrame frame){
+        whitePlayer = white; blackPlayer = black;
+        BoardUtil.init(this, depth, frame);
         generateBoard();
         loadFEN(fen);
     }
@@ -101,14 +107,17 @@ public class Board {
         if (test){
             move.piece.prevMoved = move.piece.moved;
             move.piece.prevJustMoved = move.piece.justMoved;
+            BoardUtil.turn = !BoardUtil.turn;
         }
 
         move.piece.moved = true;
         move.piece.justMoved = true;
 
-        BoardUtil.turn = !BoardUtil.turn;
-
         if (move.taken != null) move.taken.dead = true;
+
+        if (!test){
+            BoardUtil.switchTurn(this);
+        }
     }
 
     public void unMakeMove(final Move move){

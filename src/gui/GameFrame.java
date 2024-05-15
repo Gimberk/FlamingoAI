@@ -26,8 +26,8 @@ public class GameFrame {
 
     public TilePanel selected = null;
 
-    public GameFrame(final String fen){
-        board = new Board(fen);
+    public GameFrame(final String fen, final int depth, final boolean white, final boolean black){
+        board = new Board(fen, depth, white, black, this);
 
         boardPanel = new BoardPanel(this);
 
