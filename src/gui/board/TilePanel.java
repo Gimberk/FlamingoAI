@@ -69,6 +69,7 @@ public class TilePanel extends JPanel {
             final int size = 63;
             Image scaledImage = img.getScaledInstance(size, size, Image.SCALE_SMOOTH);
             JLabel label = new JLabel(new ImageIcon(scaledImage));
+            //JLabel label = new JLabel(tile.occupied ? String.valueOf(tile.piece.type) : String.valueOf(tile.index));
             removeAll();
             add(label);
             repaint();
@@ -87,20 +88,23 @@ public class TilePanel extends JPanel {
         if (me.getButton() == 3) frame.selected = null;
         else if (tile.occupied && tile.piece.alliance == turn) frame.selected = this;
         else if (frame.selected != null) {
-            final Move move = new Move(frame.selected.tile.index, tile.index, frame.selected.tile.piece, tile.piece);
+            Move move = new Move(frame.selected.tile.index, tile.index, frame.selected.tile.piece, tile.piece);
             final List<Move> moves = frame.selected.tile.piece.getLegals(frame.board);
             if (BoardUtil.movesContains(moves, move)){
+                for (final Move m : moves) if (m.equals(move)) move = m;
                 removeAll();
                 frame.selected.removeAll();
                 frame.board.makeMove(move, false);
-                for (final TilePanel t : frame.boardPanel.tiles) t.update();
+                for (final TilePanel t : frame.boardPanel.tiles){
+                    t.removeAll();
+                    t.update();
+                    t.revalidate(); t.repaint();
+                }
                 setBackground(color ? frame.lightTileColor : frame.darkTileColor);
                 if (tile.occupied && frame.selected != this){
                     for (final TilePanel t : frame.boardPanel.tiles) t.setBackground(t.color ? frame.lightTileColor : frame.darkTileColor);
                 }
-                frame.selected.revalidate();
-                frame.selected.repaint();
-                frame.selected = null;
+                frame.selected.revalidate(); frame.selected.repaint(); frame.selected = null;
             }
         }
     }

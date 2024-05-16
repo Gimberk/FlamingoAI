@@ -28,7 +28,7 @@ public class Queen extends Piece{
                 if (BoardUtil.isFirstFile(start)) continue;
             }
 
-            while (end >= 0 && end < 63){
+            while (end >= 0 && end <= 63){
                 end += dir;
                 if (end < 0 || end > 63) break;
                 Tile tile = board.tiles[end];

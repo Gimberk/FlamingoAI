@@ -21,14 +21,14 @@ public class Rook extends Piece{
             final int start = tile.index;
             int end = start;
 
-            if (dir == 1 || dir == 9 || dir == -7){
+            if (dir == 1){
                 if (BoardUtil.isLastFile(start)) continue;
             }
-            else if (dir == -1 || dir == 7 || dir == -9){
+            else if (dir == -1){
                 if (BoardUtil.isFirstFile(start)) continue;
             }
 
-            while (end >= 0 && end < 63){
+            while (end >= 0 && end <= 63){
                 end += dir;
                 if (end < 0 || end > 63) break;
                 Tile tile = board.tiles[end];
@@ -36,10 +36,10 @@ public class Rook extends Piece{
                 moves.add(new Move(start, end, this, tile.piece));
                 if (tile.occupied) break;
 
-                if (dir == 1 || dir == 9 || dir == -7){
+                if (dir == 1){
                     if (BoardUtil.isLastFile(end)) break;
                 }
-                else if (dir == -1 || dir == 7 || dir == -9){
+                else if (dir == -1){
                     if (BoardUtil.isFirstFile(end)) break;
                 }
             }

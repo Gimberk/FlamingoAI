@@ -7,10 +7,10 @@ import java.util.List;
 
 public abstract class Piece {
     public final int index;
-    public final Type type;
+    public Type type;
     public final boolean alliance;
-    public final char identifier;
-    public final List<Integer> directions;
+    public char identifier;
+    public List<Integer> directions;
 
     public Tile tile;
     public boolean moved, justMoved, dead, prevMoved, prevJustMoved;

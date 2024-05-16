@@ -34,8 +34,6 @@ public class BoardUtil {
     public static void switchTurn(final Board board){
         turn = !turn;
         if (turn && board.whitePlayer || (!turn && board.blackPlayer)) return;
-        System.out.println(turn);
-        System.out.println(getAllianceMoves(turn, board).size());
         final Move best = search(board, depth);
         if (best != null){
             board.makeMove(best, false);
@@ -59,8 +57,10 @@ public class BoardUtil {
     public static boolean isSeventhFile(final int index) { return isLastFile(index+1); }
     public static boolean isLastFile(final int index) { return (index-7) % 8 == 0; }
 
+    public static boolean isSecondRank(final int index) { return index >= 8 && index <= 15; }
     public static boolean isFourthRank (final int index) { return index >= 24 && index <= 31; }
     public static boolean isFifthRank (final int index) { return index >= 32 && index <= 39; }
+    public static boolean isSeventhRank(final int index) { return index >= 48 && index <= 55; }
 
     public static boolean movesContains (final List<Move> moves, final Move move){
         for (Move other : moves){
@@ -129,10 +129,13 @@ public class BoardUtil {
         return moves;
     }
 
+    public static boolean movePlayed(final Move move, final Board board){
+        return movesContains(board.history, move);
+    }
+
     public static Move search(final Board board, final int depth){
         final List<Move> positions = getAllianceMoves(turn, board);
         final boolean currTurn = turn;
-        System.out.println(turn);
         for (final Move move : positions){
             board.makeMove(move, true);
             if (depth >= 2){
@@ -151,7 +154,8 @@ public class BoardUtil {
                         }
                         turn = ttt;
                         if (opRes.isEmpty()){
-                            response.evaluation = turn ? -9999 : 9999;
+                            if (isCheck(!turn, board)) response.evaluation = turn ? -9999 : 9999;
+                            else response.evaluation = turn ? 9999 : -9999; // stalemate also bad
                         }
                         else{
 
@@ -171,7 +175,10 @@ public class BoardUtil {
                     board.unMakeMove(response);
                 }
                 turn = tt;
-                if (responses.isEmpty()) move.evaluation = -999999;
+                if (responses.isEmpty()){
+                    if (isCheck(!turn, board)) move.evaluation = turn ? 9999 : -9999;
+                    else move.evaluation = turn ? -9999 : 9999; // stalemate baddd!!
+                }
                 else{
                     Move best = responses.getFirst();
                     for (final Move response : responses){
@@ -213,7 +220,7 @@ public class BoardUtil {
         int whiteEval = countMaterial(board, true);
         int blackEval = countMaterial(board, false);
 
-        return (whiteEval-blackEval)/100;
+        return (whiteEval-blackEval);
     }
 
     private static int countMaterial(final Board board, final boolean alliance){

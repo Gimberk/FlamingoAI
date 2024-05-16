@@ -7,7 +7,7 @@ public class Move {
     public final Piece piece;
     public final Piece taken;
 
-    public boolean attackMove, illegal = false, castleQ = false, castleK = false, enPassant;
+    public boolean attackMove, illegal, castleQ = false, castleK = false, enPassant, promotion;
 
     public int evaluation = -9999;
 
@@ -15,6 +15,7 @@ public class Move {
         this.start = start; this.end = end; this.piece = piece; this.taken = taken;
         illegal = false;
         attackMove = taken != null;
+        promotion = false;
         enPassant = false;
     }
 

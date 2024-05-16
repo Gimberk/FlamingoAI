@@ -14,6 +14,8 @@ public class Board {
 
     private final char[][] tileGui = new char[BoardUtil.RANKS][BoardUtil.FILES];
 
+    public final List<Move> history = new ArrayList<>();
+
     public Board(final String fen, final int depth, final boolean white, final boolean black, final GameFrame frame){
         whitePlayer = white; blackPlayer = black;
         BoardUtil.init(this, depth, frame);
@@ -98,7 +100,9 @@ public class Board {
         Tile start = tiles[move.start], end = tiles[move.end];
         if (move.taken != null){
             move.taken.tile.update(null);
+            tiles[move.taken.tile.index].update(null);
         }
+
         start.update(null);
         end.update(move.piece);
 
@@ -118,10 +122,24 @@ public class Board {
         if (!test){
             BoardUtil.switchTurn(this);
         }
+
+        if (move.promotion){
+            move.piece.directions = List.of(-9, -8, -7, -1, 1, 7, 8, 9);
+            move.piece.type = Type.Queen;
+            move.piece.identifier = move.piece.alliance ? 'Q' : 'q';
+        }
+
+        history.add(move);
+        if (!test) showBoard();
     }
 
     public void unMakeMove(final Move move){
         if (move.taken != null) move.taken.dead = false;
+
+        if (move.promotion){
+            move.piece.type = Type.Pawn;
+            move.piece.identifier = move.piece.alliance ? 'P' : 'p';
+        }
 
         Tile start = tiles[move.start], end = tiles[move.end];
         start.update(move.piece);
@@ -136,6 +154,8 @@ public class Board {
         BoardUtil.turn = !BoardUtil.turn;
 
         move.piece.tile = start;
+
+        history.remove(move);
     }
 
     private static Piece placePiece(final Type type, final Tile tile, final boolean alliance, final int index) {
