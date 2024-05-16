@@ -90,7 +90,9 @@ public class Pawn extends Piece {
             end = start + leftDiag;
             if (end >= 0 && end <= 63){
                 if (board.tiles[end].occupied && board.tiles[end].piece.alliance != alliance){
-                    moves.add(new Move(start, end, this, board.tiles[end].piece));
+                    final Move move = new Move(start, end, this, board.tiles[end].piece);
+                    moves.add(move);
+                    if (alliance && BoardUtil.isSecondRank(start) || (!alliance && BoardUtil.isSeventhRank(start))) move.promotion = true;
                 }
             }
         }
@@ -99,7 +101,9 @@ public class Pawn extends Piece {
             end = start + rightDiag;
             if (end >=0 && end <= 63){
                 if (board.tiles[end].occupied && board.tiles[end].piece.alliance != alliance){
-                    moves.add(new Move(start, end, this, board.tiles[end].piece));
+                    final Move move = new Move(start, end, this, board.tiles[end].piece);
+                    moves.add(move);
+                    if (alliance && BoardUtil.isSecondRank(start) || (!alliance && BoardUtil.isSeventhRank(start))) move.promotion = true;
                 }
             }
         }
