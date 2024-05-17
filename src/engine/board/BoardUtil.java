@@ -9,6 +9,7 @@ import gui.board.TilePanel;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 public class BoardUtil {
     public static final int TILES = 64;
@@ -25,27 +26,25 @@ public class BoardUtil {
 
     private static int depth;
 
-    private static GameFrame frame;
-
-    public static void init(final Board board, final int depth_m, final GameFrame f){
-        depth = depth_m; frame = f;
+    public static void init(final Board board, final int depth_m){
+        depth = depth_m;
     }
 
     public static void switchTurn(final Board board){
         turn = !turn;
-        if (turn && board.whitePlayer || (!turn && board.blackPlayer)) return;
-        final Move best = search(board, depth);
-        if (best != null){
-            board.makeMove(best, false);
-            board.showBoard();
-
-            for (final TilePanel panel : frame.boardPanel.tiles){
-                panel.removeAll();
-                panel.repaint();
-                panel.revalidate();
-                panel.update();
-            }
-        }
+//        if (turn && board.whitePlayer || (!turn && board.blackPlayer)) return;
+//        final Move best = findBestMove(board, 3);
+//        if (best != null){
+//            board.makeMove(best, false);
+//            board.showBoard();
+//
+//            for (final TilePanel panel : frame.boardPanel.tiles){
+//                panel.removeAll();
+//                panel.repaint();
+//                panel.revalidate();
+//                panel.update();
+//            }
+//        }
     }
 
     public static boolean checkingIsCheck = false, gettingAttacks = false;
@@ -131,96 +130,6 @@ public class BoardUtil {
 
     public static boolean movePlayed(final Move move, final Board board){
         return movesContains(board.history, move);
-    }
-
-    public static Move search(final Board board, final int depth){
-        final List<Move> positions = getAllianceMoves(turn, board);
-        final boolean currTurn = turn;
-        for (final Move move : positions){
-            board.makeMove(move, true);
-            if (depth >= 2){
-                final List<Move> responses = getAllianceMoves(turn, board);
-                final boolean tt = turn;
-                for (final Move response : responses){
-                    // play them and get the min eval for black from each move and set that to the white move's overall eval
-                    board.makeMove(response, true);
-                    if (depth >= 3){
-                        final List<Move> opRes = getAllianceMoves(turn, board);
-                        final boolean ttt = turn;
-                        for (final Move opRe : opRes){
-                            board.makeMove(opRe, true);
-                            opRe.evaluation = evaluatePosition(board);
-                            board.unMakeMove(opRe);
-                        }
-                        turn = ttt;
-                        if (opRes.isEmpty()){
-                            if (isCheck(!turn, board)) response.evaluation = turn ? -9999 : 9999;
-                            else response.evaluation = turn ? 9999 : -9999; // stalemate also bad
-                        }
-                        else{
-
-                            Move best = opRes.getFirst();
-                            for (final Move opRe : opRes){
-                                if (turn){
-                                    if (opRe.evaluation > best.evaluation) best = opRe;
-                                }
-                                else{
-                                    if (opRe.evaluation < best.evaluation) best = opRe;
-                                }
-                            }
-                            response.evaluation = best.evaluation;
-                        }
-                    }
-                    else response.evaluation = evaluatePosition(board);
-                    board.unMakeMove(response);
-                }
-                turn = tt;
-                if (responses.isEmpty()){
-                    if (isCheck(!turn, board)) move.evaluation = turn ? 9999 : -9999;
-                    else move.evaluation = turn ? -9999 : 9999; // stalemate baddd!!
-                }
-                else{
-                    Move best = responses.getFirst();
-                    for (final Move response : responses){
-                        if (turn){
-                            if (response.evaluation > best.evaluation) best = response;
-                        }
-                        else{
-                            if (response.evaluation < best.evaluation) best = response;
-                        }
-                    }
-                    move.evaluation = best.evaluation;
-                }
-            }
-            else move.evaluation = evaluatePosition(board);
-            board.unMakeMove(move);
-        }
-        turn = currTurn;
-        if (positions.isEmpty()){
-            System.out.println("CHECKMATE!!!");
-            return null;
-        }
-        else{
-            Move best = positions.getFirst();
-            for (final Move move : positions){
-                System.out.println("Eval: " + move.evaluation);
-                if (turn){
-                    if (move.evaluation > best.evaluation) best = move;
-                }
-                else{
-                    if (move.evaluation < best.evaluation) best = move;
-                }
-            }
-            System.out.println("Best Eval: " + best.evaluation);
-            return best;
-        }
-    }
-
-    public static int evaluatePosition(final Board board){
-        int whiteEval = countMaterial(board, true);
-        int blackEval = countMaterial(board, false);
-
-        return (whiteEval-blackEval);
     }
 
     private static int countMaterial(final Board board, final boolean alliance){

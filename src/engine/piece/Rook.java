@@ -14,6 +14,7 @@ public class Rook extends Piece{
 
     @Override
     public List<Move> getLegals(Board board) {
+
         final List<Move> moves = new ArrayList<>();
         if (dead) return moves;
 

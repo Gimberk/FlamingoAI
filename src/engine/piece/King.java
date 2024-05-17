@@ -38,22 +38,23 @@ public class King extends Piece{
                 int end = tile.index + 2;
                 int bishop = end - 1;
                 int rook = end + 1;
-
-                if (!board.tiles[bishop].occupied && !board.tiles[end].occupied && board.tiles[rook].occupied) {
-                    if (board.tiles[rook].piece.alliance == alliance && board.tiles[rook].piece.type == Type.Rook &&
-                            !board.tiles[rook].piece.moved) {
-                        List<Tile> attacks = BoardUtil.getAllianceAttacks(!alliance, board);
-                        boolean attacked = false;
-                        for (Tile t : attacks) {
-                            if (t.index == bishop || t.index == tile.index || t.index == end) {
-                                attacked = true;
-                                break;
+                if (bishop >= 0 && bishop <= 63 && rook >= 0 && rook <= 63 && end >= 0 && end <= 63){
+                    if (!board.tiles[bishop].occupied && !board.tiles[end].occupied && board.tiles[rook].occupied) {
+                        if (board.tiles[rook].piece.alliance == alliance && board.tiles[rook].piece.type == Type.Rook &&
+                                !board.tiles[rook].piece.moved) {
+                            List<Tile> attacks = BoardUtil.getAllianceAttacks(!alliance, board);
+                            boolean attacked = false;
+                            for (Tile t : attacks) {
+                                if (t.index == bishop || t.index == tile.index || t.index == end) {
+                                    attacked = true;
+                                    break;
+                                }
                             }
-                        }
-                        if (!attacked) {
-                            Move kC = new Move(tile.index, end, this, board.tiles[rook].piece);
-                            kC.castleK = true;
-                            moves.add(kC);
+                            if (!attacked) {
+                                Move kC = new Move(tile.index, end, this, board.tiles[rook].piece);
+                                kC.castleK = true;
+                                moves.add(kC);
+                            }
                         }
                     }
                 }
@@ -63,23 +64,25 @@ public class King extends Piece{
                     end = tile.index - 2;
                     int knight = end - 1, queen = end + 1;
                     rook = end - 2;
-                    if (!board.tiles[knight].occupied && !board.tiles[end].occupied && !board.tiles[queen].occupied &&
-                            board.tiles[rook].occupied) {
-                        if (board.tiles[rook].piece.alliance == alliance && board.tiles[rook].piece.type == Type.Rook &&
-                                !board.tiles[rook].piece.moved){
-                            List<Tile> attacks = BoardUtil.getAllianceAttacks(!alliance, board);
-                            boolean attacked = false;
-                            for (Tile t : attacks) {
-                                if (t.index == queen || t.index == tile.index || t.index == end || t.index == knight) {
-                                    attacked = true;
-                                    break;
+                    if (knight >= 0){
+                        if (!board.tiles[knight].occupied && !board.tiles[end].occupied && !board.tiles[queen].occupied &&
+                                board.tiles[rook].occupied) {
+                            if (board.tiles[rook].piece.alliance == alliance && board.tiles[rook].piece.type == Type.Rook &&
+                                    !board.tiles[rook].piece.moved){
+                                List<Tile> attacks = BoardUtil.getAllianceAttacks(!alliance, board);
+                                boolean attacked = false;
+                                for (Tile t : attacks) {
+                                    if (t.index == queen || t.index == tile.index || t.index == end || t.index == knight) {
+                                        attacked = true;
+                                        break;
+                                    }
                                 }
-                            }
 
-                            if (!attacked) {
-                                Move qC = new Move(tile.index, end, this, board.tiles[rook].piece);
-                                qC.castleQ = true;
-                                moves.add(qC);
+                                if (!attacked) {
+                                    Move qC = new Move(tile.index, end, this, board.tiles[rook].piece);
+                                    qC.castleQ = true;
+                                    moves.add(qC);
+                                }
                             }
                         }
                     }

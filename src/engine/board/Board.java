@@ -16,9 +16,9 @@ public class Board {
 
     public final List<Move> history = new ArrayList<>();
 
-    public Board(final String fen, final int depth, final boolean white, final boolean black, final GameFrame frame){
+    public Board(final String fen, final int depth, final boolean white, final boolean black){
         whitePlayer = white; blackPlayer = black;
-        BoardUtil.init(this, depth, frame);
+        BoardUtil.init(this, depth);
         generateBoard();
         loadFEN(fen);
     }
@@ -131,6 +131,7 @@ public class Board {
 
         history.add(move);
         if (!test) showBoard();
+        if (!test) System.out.println(BoardUtil.isCheckMate(BoardUtil.turn, this));
     }
 
     public void unMakeMove(final Move move){

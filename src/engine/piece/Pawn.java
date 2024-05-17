@@ -80,7 +80,7 @@ public class Pawn extends Piece {
             }
         }
         // double jump
-        if(!moved && frontCleared && !board.tiles[end+8*modifier].occupied && (alliance && BoardUtil.isSeventhRank(start) || (!alliance && BoardUtil.isSecondRank(start)))){
+        if((alliance && BoardUtil.isSeventhRank(start) || (!alliance && BoardUtil.isSecondRank(start))) && frontCleared && !board.tiles[end+8*modifier].occupied){
             moves.add(new Move(start, end + 8 * modifier, this, null));
         }
 
