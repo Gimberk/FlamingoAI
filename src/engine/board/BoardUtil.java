@@ -3,24 +3,14 @@ package engine.board;
 import engine.piece.Move;
 import engine.piece.Piece;
 import engine.piece.Type;
-import gui.GameFrame;
-import gui.board.TilePanel;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Random;
 
 public class BoardUtil {
     public static final int TILES = 64;
     public static final int FILES = 8;
     public static final int RANKS = 8;
-
-    public static final int pawnValue = 100;
-    public static final int knightValue = 300;
-    public static final int bishopValue = 300;
-    public static final int rookValue = 500;
-    public static final int queenValue = 900;
 
     public static boolean turn = true;
 
@@ -83,6 +73,12 @@ public class BoardUtil {
         return attacks;
     }
 
+    public static List<Piece> getPieces(final boolean alliance, final Board board){
+        final List<Piece> pieces = board.pieces;
+        pieces.removeIf(alliance ? piece -> !piece.alliance : piece -> piece.alliance);
+        return pieces;
+    }
+
     public static boolean isCheck(final boolean alliance, final Board board){
         Piece king = null;
         if (checkingIsCheck) return false;
@@ -130,28 +126,5 @@ public class BoardUtil {
 
     public static boolean movePlayed(final Move move, final Board board){
         return movesContains(board.history, move);
-    }
-
-    private static int countMaterial(final Board board, final boolean alliance){
-        int queens = 0, rooks = 0, bishops = 0, knights = 0, pawns = 0;
-        for (Piece piece : board.pieces){
-            if (piece.dead) continue;
-            if (piece.type == Type.King || piece.alliance != alliance) continue;
-            switch (piece.type){
-                case Bishop -> bishops++;
-                case Knight -> knights++;
-                case Pawn -> pawns++;
-                case Rook -> rooks++;
-                case Queen -> queens++;
-            }
-        }
-
-        int material = 0;
-        material += queens * queenValue;
-        material += rooks * rookValue;
-        material += pawns * pawnValue;
-        material += bishops * bishopValue;
-        material += knights * knightValue;
-        return material;
     }
 }

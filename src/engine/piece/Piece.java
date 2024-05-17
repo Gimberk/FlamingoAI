@@ -37,5 +37,7 @@ public abstract class Piece {
         return other.index == index;
     }
 
+    public int getValue() { return type.pieceValue; }
+
     public abstract List<Move> getLegals(Board board);
 }
