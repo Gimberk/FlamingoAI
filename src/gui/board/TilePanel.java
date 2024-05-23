@@ -1,6 +1,8 @@
 package gui.board;
 
+import engine.board.Board;
 import engine.board.BoardUtil;
+import engine.board.PGNWriter;
 import engine.board.Tile;
 import engine.piece.Move;
 import engine.piece.Type;
@@ -9,17 +11,15 @@ import gui.GameFrame;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static engine.board.BoardUtil.*;
-
-public class TilePanel extends JPanel {
-    public final Tile tile;
+public class TilePanel extends JPanel implements KeyListener {
+    public Tile tile;
 
     private final GameFrame frame;
     private final boolean color;
@@ -81,12 +81,12 @@ public class TilePanel extends JPanel {
         }
     }
 
-    private void mouseRelease(MouseEvent me){
-        if (turn && !frame.board.whitePlayer) return;
-        else if (!turn && !frame.board.blackPlayer) return;
+    private void mouseRelease(MouseEvent me) {
+        if (frame.board.turn && !frame.board.whitePlayer) return;
+        else if (!frame.board.turn && !frame.board.blackPlayer) return;
 
         if (me.getButton() == 3) frame.selected = null;
-        else if (tile.occupied && tile.piece.alliance == turn) frame.selected = this;
+        else if (tile.occupied && tile.piece.alliance == frame.board.turn) frame.selected = this;
         else if (frame.selected != null) {
             Move move = new Move(frame.selected.tile.index, tile.index, frame.selected.tile.piece, tile.piece);
             final List<Move> moves = frame.selected.tile.piece.getLegals(frame.board);
@@ -105,6 +105,13 @@ public class TilePanel extends JPanel {
                     for (final TilePanel t : frame.boardPanel.tiles) t.setBackground(t.color ? frame.lightTileColor : frame.darkTileColor);
                 }
                 frame.selected.revalidate(); frame.selected.repaint(); frame.selected = null;
+
+                for (final TilePanel p : frame.boardPanel.tiles){
+                    p.removeAll();
+                    p.update();
+                    p.repaint();
+                    p.revalidate();
+                }
             }
         }
     }
@@ -124,6 +131,40 @@ public class TilePanel extends JPanel {
         if (tile.occupied && frame.selected == null){
             setBackground(color ? frame.lightTileColor : frame.darkTileColor);
             for (final TilePanel t : frame.boardPanel.tiles) t.setBackground(t.color ? frame.lightTileColor : frame.darkTileColor);
+        }
+    }
+
+    @Override
+    public void keyTyped(KeyEvent e) {
+    }
+
+    @Override
+    public void keyPressed(KeyEvent e) {
+    }
+
+    @Override
+    public void keyReleased(KeyEvent e) {
+        if (e.getKeyChar() == 'l'){
+            try {
+                frame.board = new Board(PGNWriter.readFen("saves/FEN.txt"), frame.depth, frame.white, frame.black, false);
+                for (final TilePanel p : frame.boardPanel.tiles){
+                    p.tile = frame.board.tiles[p.tile.index];
+                    p.removeAll();
+                    p.update();
+                    p.revalidate();
+                    p.repaint();
+                }
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+        }
+        else if (e.getKeyChar() == 's'){
+            try {
+                PGNWriter.saveFen("saves/FEN.txt", frame.board.generateFen(), frame.board);
+                Runtime.getRuntime().exec("explorer.exe /selection, saves");
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
         }
     }
 }

@@ -49,7 +49,7 @@ public class Rook extends Piece{
         for (Move move : moves){
             board.makeMove(move, true);
             if (BoardUtil.isCheck(alliance, board)) move.illegal = true;
-            board.unMakeMove(move);
+            board.unMakeMove(move, false);
         }
 
         moves.removeIf(move -> move.illegal);

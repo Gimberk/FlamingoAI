@@ -42,7 +42,7 @@ public class King extends Piece{
                     if (!board.tiles[bishop].occupied && !board.tiles[end].occupied && board.tiles[rook].occupied) {
                         if (board.tiles[rook].piece.alliance == alliance && board.tiles[rook].piece.type == Type.Rook &&
                                 !board.tiles[rook].piece.moved) {
-                            List<Tile> attacks = BoardUtil.getAllianceAttacks(!alliance, board);
+                            List<Tile> attacks = BoardUtil.getAllianceAttacks(!alliance, board, true);
                             boolean attacked = false;
                             for (Tile t : attacks) {
                                 if (t.index == bishop || t.index == tile.index || t.index == end) {
@@ -69,7 +69,7 @@ public class King extends Piece{
                                 board.tiles[rook].occupied) {
                             if (board.tiles[rook].piece.alliance == alliance && board.tiles[rook].piece.type == Type.Rook &&
                                     !board.tiles[rook].piece.moved){
-                                List<Tile> attacks = BoardUtil.getAllianceAttacks(!alliance, board);
+                                List<Tile> attacks = BoardUtil.getAllianceAttacks(!alliance, board, true);
                                 boolean attacked = false;
                                 for (Tile t : attacks) {
                                     if (t.index == queen || t.index == tile.index || t.index == end || t.index == knight) {
@@ -93,7 +93,7 @@ public class King extends Piece{
         for (Move move : moves){
             board.makeMove(move, true);
             if (BoardUtil.isCheck(alliance, board)) move.illegal = true;
-            board.unMakeMove(move);
+            board.unMakeMove(move, false);
         }
 
         moves.removeIf(move -> move.illegal);

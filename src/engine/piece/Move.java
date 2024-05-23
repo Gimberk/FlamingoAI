@@ -1,5 +1,8 @@
 package engine.piece;
 
+import engine.board.Board;
+import engine.board.BoardUtil;
+
 public class Move {
     public final int start;
     public final int end;
@@ -20,6 +23,21 @@ public class Move {
     }
 
     public boolean equals(Move other){
+        if (other == null) return false;
         return other.end == end && other.start == start && other.piece == piece;
+    }
+
+    public boolean isAttackMove(){
+        if (castleQ || castleK || illegal) return false;
+        return attackMove;
+    }
+
+    public boolean isCheckMove(final Board board){
+        boolean isCheck;
+        if (illegal) return false;
+        board.makeMove(this, true);
+        isCheck = BoardUtil.isCheck(true, board) || BoardUtil.isCheck(false, board);
+        board.unMakeMove(this, false);
+        return isCheck;
     }
 }

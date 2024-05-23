@@ -1,16 +1,17 @@
 package engine.piece;
 
 public enum Type {
-    Queen(900),
-    Pawn(100),
-    King(10000),
-    Rook(500),
-    Bishop(300),
-    Knight(300);
+    Queen(900, 9),
+    Pawn(100, 1),
+    King(100000, 11),
+    Rook(500, 7),
+    Bishop(300, 5),
+    Knight(300, 3);
 
     public final int pieceValue;
+    public final int hash;
 
-    Type(int value) {
-        pieceValue = value;
+    Type(final int value, final int hash) {
+        pieceValue = value; this.hash = hash;
     }
 }

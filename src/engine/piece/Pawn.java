@@ -54,7 +54,7 @@ public class Pawn extends Piece {
             for (Move move : moves){
                 board.makeMove(move, true);
                 if (BoardUtil.isCheck(alliance, board)) move.illegal = true;
-                board.unMakeMove(move);
+                board.unMakeMove(move, false);
             }
 
             moves.removeIf(move -> move.illegal);
@@ -109,44 +109,46 @@ public class Pawn extends Piece {
         }
 
         // en passant
-        if (alliance && !board.history.isEmpty()){
-            if (BoardUtil.isFourthRank(start)){
-                if (!BoardUtil.isFirstFile(start) &&
-                        (board.tiles[start-1].occupied &&
-                                board.history.getLast().piece == board.tiles[start-1].piece)){
-                    Move enPassant = new Move(start, start-9, this, board.tiles[start-1].piece);
-                    enPassant.attackMove = true;
-                    enPassant.enPassant = true;
+        if (!BoardUtil.processing){
+            if (alliance && !board.history.isEmpty()){
+                if (BoardUtil.isFourthRank(start)){
+                    if (!BoardUtil.isFirstFile(start) &&
+                            (board.tiles[start-1].occupied &&
+                                    board.history.getLast().piece == board.tiles[start-1].piece)){
+                        Move enPassant = new Move(start, start-9, this, board.tiles[start-1].piece);
+                        enPassant.attackMove = true;
+                        enPassant.enPassant = true;
 
-                    if (!BoardUtil.movesContains(moves, enPassant)) moves.add(enPassant);
-                }
-                if (!BoardUtil.isLastFile(start) &&
-                        (board.tiles[start+1].occupied &&
-                                board.history.getLast().piece == board.tiles[start+1].piece)){
-                    Move enPassant = new Move(start, start-7, this, board.tiles[start+1].piece);
-                    enPassant.attackMove = true;
-                    enPassant.enPassant = true;
-                    if (!BoardUtil.movesContains(moves, enPassant)) moves.add(enPassant);
+                        if (!BoardUtil.movesContains(moves, enPassant)) moves.add(enPassant);
+                    }
+                    if (!BoardUtil.isLastFile(start) &&
+                            (board.tiles[start+1].occupied &&
+                                    board.history.getLast().piece == board.tiles[start+1].piece)){
+                        Move enPassant = new Move(start, start-7, this, board.tiles[start+1].piece);
+                        enPassant.attackMove = true;
+                        enPassant.enPassant = true;
+                        if (!BoardUtil.movesContains(moves, enPassant)) moves.add(enPassant);
+                    }
                 }
             }
-        }
-        else if (!board.history.isEmpty()){
-            if (BoardUtil.isFifthRank(start)){
-                if (!BoardUtil.isFirstFile(start) &&
-                        (board.tiles[start-1].occupied &&
-                                board.history.getLast().piece == board.tiles[start-1].piece)){
-                    Move enPassant = new Move(start, start+7, this, board.tiles[start-1].piece);
-                    enPassant.attackMove = true;
-                    enPassant.enPassant = true;
-                    if (!BoardUtil.movesContains(moves, enPassant)) moves.add(enPassant);
-                }
-                if (!BoardUtil.isLastFile(start) &&
-                        (board.tiles[start+1].occupied &&
-                                board.history.getLast().piece == board.tiles[start+1].piece)){
-                    Move enPassant = new Move(start, start+9, this, board.tiles[start+1].piece);
-                    enPassant.attackMove = true;
-                    enPassant.enPassant = true;
-                    if (!BoardUtil.movesContains(moves, enPassant)) moves.add(enPassant);
+            else if (!board.history.isEmpty()){
+                if (BoardUtil.isFifthRank(start)){
+                    if (!BoardUtil.isFirstFile(start) &&
+                            (board.tiles[start-1].occupied &&
+                                    board.history.getLast().piece == board.tiles[start-1].piece)){
+                        Move enPassant = new Move(start, start+7, this, board.tiles[start-1].piece);
+                        enPassant.attackMove = true;
+                        enPassant.enPassant = true;
+                        if (!BoardUtil.movesContains(moves, enPassant)) moves.add(enPassant);
+                    }
+                    if (!BoardUtil.isLastFile(start) &&
+                            (board.tiles[start+1].occupied &&
+                                    board.history.getLast().piece == board.tiles[start+1].piece)){
+                        Move enPassant = new Move(start, start+9, this, board.tiles[start+1].piece);
+                        enPassant.attackMove = true;
+                        enPassant.enPassant = true;
+                        if (!BoardUtil.movesContains(moves, enPassant)) moves.add(enPassant);
+                    }
                 }
             }
         }
@@ -158,7 +160,7 @@ public class Pawn extends Piece {
             }
             board.makeMove(move, true);
             if (BoardUtil.isCheck(alliance, board)) move.illegal = true;
-            board.unMakeMove(move);
+            board.unMakeMove(move, false);
         }
 
         moves.removeIf(move -> move.illegal);

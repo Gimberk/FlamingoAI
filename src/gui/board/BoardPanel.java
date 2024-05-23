@@ -28,6 +28,8 @@ public class BoardPanel extends JPanel {
         for (int i = 0; i < 64; i++){
             final TilePanel panel = new TilePanel(frame.board.tiles[i], color, frame);
             add(panel);
+            panel.addKeyListener(panel);
+            panel.setFocusable(true);
             tiles.add(panel);
             if ((i+1) % 8 != 0) color = !color;
         }

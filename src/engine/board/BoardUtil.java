@@ -1,10 +1,12 @@
 package engine.board;
 
 import engine.piece.Move;
+import engine.piece.Pawn;
 import engine.piece.Piece;
 import engine.piece.Type;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class BoardUtil {
@@ -12,7 +14,9 @@ public class BoardUtil {
     public static final int FILES = 8;
     public static final int RANKS = 8;
 
-    public static boolean turn = true;
+    public static boolean processing = false;
+
+    public static boolean whiteCastled = false, blackCastled = false;
 
     private static int depth;
 
@@ -21,20 +25,8 @@ public class BoardUtil {
     }
 
     public static void switchTurn(final Board board){
-        turn = !turn;
-//        if (turn && board.whitePlayer || (!turn && board.blackPlayer)) return;
-//        final Move best = findBestMove(board, 3);
-//        if (best != null){
-//            board.makeMove(best, false);
-//            board.showBoard();
-//
-//            for (final TilePanel panel : frame.boardPanel.tiles){
-//                panel.removeAll();
-//                panel.repaint();
-//                panel.revalidate();
-//                panel.update();
-//            }
-//        }
+        if (board.turn && !board.whitePlayer || (!board.turn && !board.blackPlayer)){
+        }
     }
 
     public static boolean checkingIsCheck = false, gettingAttacks = false;
@@ -51,6 +43,22 @@ public class BoardUtil {
     public static boolean isFifthRank (final int index) { return index >= 32 && index <= 39; }
     public static boolean isSeventhRank(final int index) { return index >= 48 && index <= 55; }
 
+    public static boolean isGameOver(Board board) {
+        // For simplicity, you can return true if the board is in a terminal state
+        return isCheckMate(true, board) || isCheckMate(false, board);
+    }
+
+    // Method to get the game result
+    public static int getGameResult(Board board, boolean isCurrentPlayerWhite) {
+        if (isCheckMate(true, board)) {
+            return isCurrentPlayerWhite ? 1 : -1; // White checkmated
+        } else if (isCheckMate(false, board)) {
+            return isCurrentPlayerWhite ? -1 : 1; // Black checkmated
+        }
+        // Additional conditions for draw can be added here
+        return 0; // Default to draw if no checkmate or stalemate
+    }
+
     public static boolean movesContains (final List<Move> moves, final Move move){
         for (Move other : moves){
             if (other.equals(move)) return true;
@@ -59,9 +67,28 @@ public class BoardUtil {
         return false;
     }
 
-    public static List<Tile> getAllianceAttacks(final boolean alliance, final Board board){
+    public static boolean canQueenCastle(final boolean alliance, final Board board){
+        Piece king = null;
+        for (final Piece piece : board.pieces){
+            if (piece.type == Type.King && piece.alliance == alliance) king = piece;
+        }
+        for (final Move move : king.getLegals(board)) if (move.castleQ) return true;
+        return false;
+    }
+
+    public static boolean canKingCastle(final boolean alliance, final Board board){
+        Piece king = null;
+        for (final Piece piece : board.pieces){
+            if (piece.type == Type.King && piece.alliance == alliance) king = piece;
+        }
+        for (final Move move : king.getLegals(board)) if (move.castleK) return true;
+        return false;
+    }
+
+    public static List<Tile> getAllianceAttacks(final boolean alliance, final Board board, final boolean pawns){
         final List<Tile> attacks = new ArrayList<>();
         for (final Piece piece : board.pieces){
+            if (!pawns && piece.type == Type.Pawn) continue;
             if (piece.alliance != alliance) continue;
             gettingAttacks = true;
             final List<Move> legals = piece.getLegals(board);
@@ -74,8 +101,8 @@ public class BoardUtil {
     }
 
     public static List<Piece> getPieces(final boolean alliance, final Board board){
-        final List<Piece> pieces = board.pieces;
-        pieces.removeIf(alliance ? piece -> !piece.alliance : piece -> piece.alliance);
+        List<Piece> pieces = new ArrayList<>();
+        for (final Piece piece : board.pieces) if (piece.alliance == alliance) pieces.add(piece);
         return pieces;
     }
 
@@ -92,7 +119,7 @@ public class BoardUtil {
         if (king == null) return false;
 
         // calculate every square a specific alliance attacks
-        final List<Tile> allianceAttacks = getAllianceAttacks(!alliance, board);
+        final List<Tile> allianceAttacks = getAllianceAttacks(!alliance, board, true);
         checkingIsCheck = false;
         for (final Tile attackedTile : allianceAttacks){
             if (king.tile.index == attackedTile.index) return true;
@@ -110,7 +137,7 @@ public class BoardUtil {
         if (!allianceMoves.isEmpty()) return false;
 
         if (!isCheck(alliance, board)){
-            System.out.println("Stalemate!!!!");
+            return true;
         }
         return true;
     }
@@ -126,5 +153,22 @@ public class BoardUtil {
 
     public static boolean movePlayed(final Move move, final Board board){
         return movesContains(board.history, move);
+    }
+
+    public static List<Move> getAllCaptures(final boolean alliance, final Board board) {
+        final List<Move> captures = new ArrayList<>();
+        for (final Move move : getAllianceMoves(alliance, board)) if (move.isAttackMove()) captures.add(move);
+        return captures;
+    }
+
+    public static boolean attackedByPawns(final Board board, final Tile tile, final boolean alliance) {
+        final List<Piece> pawns = new ArrayList<>(List.copyOf(board.pieces));
+        pawns.removeIf(piece -> piece.type != Type.Pawn || piece.alliance == alliance);
+        for (final Piece pawn : pawns){
+            final List<Move> moves = pawn.getLegals(board);
+            moves.removeIf(move -> !move.isAttackMove());
+            for(final Move move : moves) if (move.end == tile.index) return true;
+        }
+        return false;
     }
 }

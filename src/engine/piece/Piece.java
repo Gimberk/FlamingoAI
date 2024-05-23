@@ -6,6 +6,8 @@ import engine.board.Tile;
 import java.util.List;
 
 public abstract class Piece {
+    public int x, y;
+
     public final int index;
     public Type type;
     public final boolean alliance;
@@ -38,6 +40,8 @@ public abstract class Piece {
     }
 
     public int getValue() { return type.pieceValue; }
+
+    public int getHash() { return type.hash; }
 
     public abstract List<Move> getLegals(Board board);
 }

@@ -1,6 +1,8 @@
 package engine.board;
 
+import ai.ZobristHash;
 import engine.piece.*;
+import gui.AudioManager;
 import gui.GameFrame;
 
 import java.util.*;
@@ -16,11 +18,28 @@ public class Board {
 
     public final List<Move> history = new ArrayList<>();
 
-    public Board(final String fen, final int depth, final boolean white, final boolean black){
+    private final int depth;
+
+    public boolean turn = true;
+
+    public final List<Long> repetitionHistory;
+
+    private final ZobristHash hashing = new ZobristHash();
+
+    public int fiftyMoveCounter = 0;
+    private int prevMoveCount = fiftyMoveCounter;
+
+    public Board(final String fen, final int depth, final boolean white, final boolean black, final boolean copy){
+        repetitionHistory = new ArrayList<>();
         whitePlayer = white; blackPlayer = black;
-        BoardUtil.init(this, depth);
+        this.depth = depth;
+        if (!copy){
+            BoardUtil.init(this, depth);
+        }
         generateBoard();
         loadFEN(fen);
+
+        AudioManager.playStart();
     }
 
     public void loadFEN(String fen){
@@ -95,12 +114,27 @@ public class Board {
     }
 
     public void makeMove(final Move move, final boolean test){
+        if (!test && turn != move.piece.alliance){
+            System.out.println("Not your turn.");
+            return;
+        }
         for (final Piece piece : pieces) piece.justMoved = false;
+
+        if (move == null) return;
 
         Tile start = tiles[move.start], end = tiles[move.end];
         if (move.taken != null){
             move.taken.tile.update(null);
             tiles[move.taken.tile.index].update(null);
+
+            if (move.castleK){
+                move.taken.tile = tiles[move.start+1];
+                tiles[move.start+1].update(move.taken);
+            }
+            if (move.castleQ){
+                move.taken.tile = tiles[move.start-1];
+                tiles[move.start-1].update(move.taken);
+            }
         }
 
         start.update(null);
@@ -111,17 +145,13 @@ public class Board {
         if (test){
             move.piece.prevMoved = move.piece.moved;
             move.piece.prevJustMoved = move.piece.justMoved;
-            BoardUtil.turn = !BoardUtil.turn;
+            turn = !turn;
         }
 
         move.piece.moved = true;
         move.piece.justMoved = true;
 
-        if (move.taken != null) move.taken.dead = true;
-
-        if (!test){
-            BoardUtil.switchTurn(this);
-        }
+        if (move.taken != null && !move.castleK && !move.castleQ) move.taken.dead = true;
 
         if (move.promotion){
             move.piece.directions = List.of(-9, -8, -7, -1, 1, 7, 8, 9);
@@ -130,11 +160,37 @@ public class Board {
         }
 
         history.add(move);
+        if (!test && (move.castleK || move.castleQ)){
+            if (move.piece.alliance) BoardUtil.whiteCastled = true;
+            else BoardUtil.blackCastled = true;
+        }
         if (!test) showBoard();
-        if (!test) System.out.println(BoardUtil.isCheckMate(BoardUtil.turn, this));
+
+        if (move.piece.type == Type.Pawn || move.isAttackMove()){
+            if (!test) repetitionHistory.clear();
+            prevMoveCount = fiftyMoveCounter;
+            fiftyMoveCounter = 0;
+        }
+
+        if (!test){
+            repetitionHistory.add(hashing.generateZobristKey(this));
+        }
+
+        if (!test){
+            if (BoardUtil.isCheckMate(!turn, this)){
+                AudioManager.playEnd();
+            }
+            else{
+                turn = !turn;
+                if (move.isAttackMove()) AudioManager.playCapture();
+                else AudioManager.playMove();
+
+                BoardUtil.switchTurn(this);
+            }
+        }
     }
 
-    public void unMakeMove(final Move move){
+    public void unMakeMove(final Move move, final boolean inSearch){
         if (move.taken != null) move.taken.dead = false;
 
         if (move.promotion){
@@ -145,18 +201,35 @@ public class Board {
         Tile start = tiles[move.start], end = tiles[move.end];
         start.update(move.piece);
         end.update(null);
-        if (move.taken != null){
+        if (move.taken != null && !move.castleK){
             move.taken.tile.update(move.taken);
         }
 
         move.piece.moved = move.piece.prevMoved;
         move.piece.justMoved = move.piece.prevJustMoved;
 
-        BoardUtil.turn = !BoardUtil.turn;
+        turn = !turn;
+
+        if (move.castleK && move.taken != null){
+            move.taken.tile.update(null);
+            tiles[move.start+3].update(move.taken);
+            move.taken.tile = tiles[move.start+3];
+        }
+        if (move.castleQ && move.taken != null){
+            move.taken.tile.update(null);
+            tiles[move.start-4].update(move.taken);
+            move.taken.tile = tiles[move.start-4];
+        }
 
         move.piece.tile = start;
 
         history.remove(move);
+
+        if (!inSearch && !repetitionHistory.isEmpty()){
+            repetitionHistory.removeLast();
+        }
+
+        fiftyMoveCounter = prevMoveCount;
     }
 
     private static Piece placePiece(final Type type, final Tile tile, final boolean alliance, final int index) {
@@ -194,5 +267,55 @@ public class Board {
             }
             color = !color;
         }
+    }
+
+    public String generateFen(){
+        StringBuilder fen = new StringBuilder();
+        Map<Type, Character> pieceChars = Map.of(
+                Type.King, 'K',
+                Type.Knight, 'N',
+                Type.Pawn, 'P',
+                Type.Rook, 'R',
+                Type.Queen, 'Q',
+                Type.Bishop, 'B');
+        int file = 0;
+        int space = 0;
+        int rank = 0;
+        for (final Tile tile : tiles){
+            if (tile.occupied){
+                if (space != 0) fen.append(space);
+                fen.append(tile.piece.alliance ? pieceChars.get(tile.piece.type)
+                        : Character.toLowerCase(pieceChars.get(tile.piece.type)));
+                space = 0;
+            }
+            if (file == 7){
+                if (space != 0) fen.append(space + 1);
+                if (rank < 7) fen.append('/');
+                file = 0;
+                rank++;
+                space = 0;
+            }
+            else{
+                space++;
+                file++;
+            }
+
+            if (tile.occupied) space = 0;
+        }
+
+        return fen.toString();
+    }
+
+    public Board copy() {
+        Board b = new Board(generateFen(), depth, whitePlayer, blackPlayer, true);
+        b.history.addAll(history);
+        return b;
+    }
+
+    public int getPieceAt(final int index){
+        if (!tiles[index].occupied) return 0;
+
+        final Piece piece = tiles[index].piece;
+        return piece.alliance ? piece.getHash() : piece.getHash() + 1;
     }
 }

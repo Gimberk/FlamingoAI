@@ -32,7 +32,7 @@ public class Queen extends Piece{
                 end += dir;
                 if (end < 0 || end > 63) break;
                 Tile tile = board.tiles[end];
-                if (tile.occupied && alliance == tile.piece.alliance) break;
+                if (tile.occupied && tile.piece != null &&  alliance == tile.piece.alliance) break;
                 moves.add(new Move(start, end, this, tile.piece));
                 if (tile.occupied) break;
                 if (dir == 1 || dir == 9 || dir == -7){
@@ -47,7 +47,7 @@ public class Queen extends Piece{
         for (Move move : moves){
             board.makeMove(move, true);
             if (BoardUtil.isCheck(alliance, board)) move.illegal = true;
-            board.unMakeMove(move);
+            board.unMakeMove(move, false);
         }
 
         moves.removeIf(move -> move.illegal);
