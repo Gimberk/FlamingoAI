@@ -1,4 +1,6 @@
+import ai.evaluation.Evaluator;
 import engine.board.Board;
+import engine.board.BoardUtil;
 import engine.board.PGNWriter;
 import gui.GameFrame;
 
@@ -11,7 +13,7 @@ public class ChessAI {
     public final static String startingFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
     //public final static String startingFen = "r3k2r/pppppppp/8/8/8/8/PPPPPPPP/R3K2R";
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         // Quiescence Search
         // LMR
         // Transposition Tables
@@ -20,7 +22,7 @@ public class ChessAI {
         // Main Screen
         // End Game Screen
 
-        GameFrame frame = new GameFrame(startingFen, 3, true, true);
+        GameFrame frame = new GameFrame(startingFen, 4, true, false);
         frame.board.turn = true;
     }
 }

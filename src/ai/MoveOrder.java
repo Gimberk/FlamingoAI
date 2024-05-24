@@ -22,14 +22,9 @@ public class MoveOrder {
         killerMoves = new Killer[32];
     }
 
-    public void orderMoves(final Move hashMove, final Board board, final List<Move> moves,
-                           final boolean inQuiescenceSearch, final int ply){
+    public void orderMoves(final Board board, final List<Move> moves){
         for (int i = 0; i < moves.size(); i++){
             final Move move = moves.get(i);
-            if (move.equals(hashMove)){
-                moveScores[i] = 100000000; // cuz why not
-                continue;
-            }
             int score = 0;
 
             if (move.isAttackMove()){
@@ -56,11 +51,6 @@ public class MoveOrder {
                 if (BoardUtil.attackedByPawns(board, board.tiles[move.end], board.turn)) score -= 50;
                 else if (BoardUtil.getAllianceAttacks(!board.turn, board, false).contains(board.tiles[move.end]))
                     score -= 25;
-            }
-
-            if (!move.isAttackMove()){
-                final boolean isKiller = !inQuiescenceSearch && ply < 32 && killerMoves[ply] != null && killerMoves[ply].equals(move);
-                score += isKiller ? 4000000 : 0;
             }
 
             moveScores[i] = score;

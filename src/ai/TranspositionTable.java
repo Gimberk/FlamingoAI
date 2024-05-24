@@ -32,38 +32,9 @@ public class TranspositionTable {
         table = new HashMap<>();
     }
 
-    public int lookup(long hash, int depth, int plyFromRoot, int alpha, int beta)
-    {
-        final TTEntry entry = get(hash);
-        if (entry == null) return -1;
-        if (entry.depth >= depth)
-        {
-            final int correctedScore = correctRetrievedMateScore(entry.evaluation, plyFromRoot);
-            if (entry.type == NodeType.EXACT || (entry.type == NodeType.LOWER_BOUND && correctedScore >= beta)
-                || (entry.type == NodeType.UPPER_BOUND && correctedScore <= alpha)) return correctedScore;
-        }
-        return -1; // lookup failed
-    }
-
     public Move getMove(final long hash) {
         if (get(hash) != null) return get(hash).move;
         return null;
-    }
-
-    public int correctMateScore(final int score, final int plySearched){
-        if (Quiescence.isMate(score)){
-            final int signum = (int)Math.signum(score);
-            return (score * signum - plySearched) * signum;
-        }
-        return score;
-    }
-
-    public int correctRetrievedMateScore(final int score, final int plySearched){
-        if (Quiescence.isMate(score)){
-            final int signum = (int)Math.signum(score);
-            return (score * signum + plySearched) * signum;
-        }
-        return score;
     }
 
     public TTEntry get(long hash) {

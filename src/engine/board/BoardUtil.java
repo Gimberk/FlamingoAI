@@ -1,12 +1,12 @@
 package engine.board;
 
+import ai.iterations.AlphaBeta;
+import ai.Strategy;
 import engine.piece.Move;
-import engine.piece.Pawn;
 import engine.piece.Piece;
 import engine.piece.Type;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class BoardUtil {
@@ -18,14 +18,16 @@ public class BoardUtil {
 
     public static boolean whiteCastled = false, blackCastled = false;
 
-    private static int depth;
+    private static Strategy ai;
 
-    public static void init(final Board board, final int depth_m){
-        depth = depth_m;
+    public static void init(final int depth){
+        ai = new AlphaBeta(depth);
     }
 
     public static void switchTurn(final Board board){
         if (board.turn && !board.whitePlayer || (!board.turn && !board.blackPlayer)){
+            final Move best = ai.execute(board);
+            board.makeMove(best, false);
         }
     }
 
@@ -106,6 +108,19 @@ public class BoardUtil {
         return pieces;
     }
 
+    public static int moveGenTest(final Board board, final int depth){
+        if (depth == 0) return 1;
+        final List<Move> moves = getAllianceMoves(board.turn, board);
+        int numPositions = 0;
+
+        for (final Move move : moves){
+            board.makeMove(move, true);
+            numPositions+=moveGenTest(board, depth - 1);
+            board.unMakeMove(move, false);
+        }
+        return numPositions;
+    }
+
     public static boolean isCheck(final boolean alliance, final Board board){
         Piece king = null;
         if (checkingIsCheck) return false;
@@ -136,9 +151,7 @@ public class BoardUtil {
 
         if (!allianceMoves.isEmpty()) return false;
 
-        if (!isCheck(alliance, board)){
-            return true;
-        }
+        isCheck(alliance, board);
         return true;
     }
 

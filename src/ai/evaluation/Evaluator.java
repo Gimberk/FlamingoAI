@@ -20,45 +20,12 @@ public class Evaluator {
     public static int evaluatePosition(final Board board){
         int white = 0, black = 0;
 
-        for (final Piece piece : BoardUtil.getPieces(board.turn, board)){
-            switch (piece.type){
-                case Knight -> numKnights++;
-                case Queen -> numQueens++;
-                case Bishop -> numBishops++;
-                case Rook -> numRooks++;
-            }
-        }
-        for (final Piece piece : BoardUtil.getPieces(!board.turn, board)){
-            switch (piece.type){
-                case Knight -> opNumKnights++;
-                case Queen -> opNumQueens++;
-                case Bishop -> opNumBishops++;
-                case Rook -> opNumRooks++;
-            }
-        }
-
         // Material
         int whiteMaterial = getMaterial(true, board);
         int blackMaterial = getMaterial(false, board);
 
-        // Who is better and ready for endgame phase
-        float whiteEndgame = endgamePhase(board, true);
-        float blackEndgame = endgamePhase(board, false);
-
         white += whiteMaterial;
         black += blackMaterial;
-
-        // Use the king more in an endgame
-        white += evaluateEndgame(board, true, whiteMaterial, blackMaterial, blackEndgame);
-        black += evaluateEndgame(board, false, blackMaterial, whiteMaterial, whiteEndgame);
-
-        // position of pieces
-        int whitePiecePositioning = pieceSquareTables(board, true, blackEndgame);
-        int blackPiecePositioning = pieceSquareTables(board, false, whiteEndgame);
-
-        // Pawns to protect the king are usually good I think. Also does overall king safety...
-        white += evaluatePawnShield(board, true, blackEndgame, blackPiecePositioning);
-        black += evaluatePawnShield(board, false, whiteEndgame, whitePiecePositioning);
 
         final int eval = white - black;
         int perspective = board.turn ? 1 : -1;

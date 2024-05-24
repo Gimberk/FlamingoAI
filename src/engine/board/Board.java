@@ -3,7 +3,6 @@ package engine.board;
 import ai.ZobristHash;
 import engine.piece.*;
 import gui.AudioManager;
-import gui.GameFrame;
 
 import java.util.*;
 
@@ -34,12 +33,11 @@ public class Board {
         whitePlayer = white; blackPlayer = black;
         this.depth = depth;
         if (!copy){
-            BoardUtil.init(this, depth);
+            BoardUtil.init(depth);
+            AudioManager.playStart();
         }
         generateBoard();
         loadFEN(fen);
-
-        AudioManager.playStart();
     }
 
     public void loadFEN(String fen){
