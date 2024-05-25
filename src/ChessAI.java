@@ -14,11 +14,10 @@ public class ChessAI {
     //public final static String startingFen = "r3k2r/pppppppp/8/8/8/8/PPPPPPPP/R3K2R";
 
     public static void main(String[] args) {
-        // Quiescence Search
+        // Move Ordering
         // LMR
-        // Transposition Tables
         // Iterative Deepening
-        // Piece-Square Tables
+        // Piece-Square Tables (and other eval function stuff)
         // Main Screen
         // End Game Screen
 

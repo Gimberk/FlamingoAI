@@ -10,12 +10,12 @@ import engine.piece.Move;
 
 import java.util.List;
 
-public class AlphaBeta implements Strategy {
+public class Quiescence implements Strategy {
     private final int maxDepth;
     private final TranspositionTable ttable;
     private final ZobristHash zobristHash;
 
-    public AlphaBeta(final int maxDepth){
+    public Quiescence(final int maxDepth){
         zobristHash = new ZobristHash();
         ttable = new TranspositionTable();
         this.maxDepth = maxDepth;
@@ -25,6 +25,7 @@ public class AlphaBeta implements Strategy {
     public Move execute(final Board board) {
         final long startTime = System.currentTimeMillis();
         final List<Move> moves = BoardUtil.getAllianceMoves(board.turn, board);
+        // order moves
 
         final boolean alliance = board.turn;
 
@@ -52,9 +53,9 @@ public class AlphaBeta implements Strategy {
     private int search(final int depth, final Board board, int alpha, int beta, final boolean maximizing){
         final long hash = zobristHash.generateZobristKey(board);
         if (ttable.contains(hash)) return ttable.get(hash).evaluation;
+
         if (depth == 0){
-            final int eval = Evaluator.evaluatePosition(
-                    new Board(board.generateFen(), 45, true, true, true));
+            final int eval = quiescence(board, alpha, beta);
             ttable.put(hash, eval, depth);
             return eval;
         }
@@ -66,6 +67,7 @@ public class AlphaBeta implements Strategy {
             }
             return 0;
         }
+        // order moves
 
         int bestEval;
         if (maximizing){
@@ -91,5 +93,23 @@ public class AlphaBeta implements Strategy {
             }
         }
         return bestEval;
+    }
+
+    private int quiescence (final Board board, int alpha, int beta){
+        int eval = Evaluator.evaluatePosition(
+                new Board(board.generateFen(), 45, true, true, true));
+        if (eval >= beta) return beta;
+        if (eval > alpha) alpha = eval;
+
+        final List<Move> moves = BoardUtil.getAllCaptures(board.turn, board);
+        for (final Move move : moves){
+            board.makeMove(move, true);
+            eval = -quiescence(board, -beta, -alpha);
+            board.unMakeMove(move, true);
+
+            if (eval >= beta) return beta;
+            if (eval > alpha) alpha = eval;
+        }
+        return alpha;
     }
 }

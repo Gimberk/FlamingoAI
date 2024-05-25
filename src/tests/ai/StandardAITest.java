@@ -3,6 +3,7 @@ package tests.ai;
 import ai.iterations.AlphaBeta;
 import ai.iterations.Minimax;
 import ai.Strategy;
+import ai.iterations.Quiescence;
 import engine.board.Board;
 import engine.board.BoardUtil;
 import engine.piece.Move;
@@ -22,14 +23,14 @@ class StandardAITest {
         board.makeMove(m2, false);
         board.makeMove(m3, false);
 
-        final int depth = 4;
+        final int depth = 5;
 
         assertFalse(BoardUtil.isCheck(true, board));
         assertFalse(BoardUtil.isCheck(false, board));
         assertFalse(BoardUtil.isCheckMate(false, board));
         assertFalse(BoardUtil.isCheckMate(true, board));
 //
-        final Strategy minMax = new AlphaBeta(depth);
+        final Strategy minMax = new Quiescence(depth);
         Move minMaxMove = minMax.execute(board);
 
         final Move bestMove = new Move(3, 39, board.tiles[3].piece, null);

@@ -1,6 +1,5 @@
 package ai.iterations;
 
-import ai.MoveOrder;
 import ai.Strategy;
 import ai.evaluation.Evaluator;
 import engine.board.Board;
@@ -12,10 +11,8 @@ import java.util.List;
 public class Minimax implements Strategy {
 
     private final int maxDepth;
-    private final MoveOrder moveOrder;
 
     public Minimax(final int maxDepth){
-        moveOrder = new MoveOrder();
         this.maxDepth = maxDepth;
     }
 
