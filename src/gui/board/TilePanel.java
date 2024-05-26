@@ -51,22 +51,21 @@ public class TilePanel extends JPanel implements KeyListener {
 
     public void update(){
         if (!tile.occupied) return;
-        String imgPath = "assets/piece/neo/";
+        String imgPath = "assets/piece/" + frame.pieceSet + "/";
+        imgPath += tile.piece.alliance ? "w" : "b";
         imgPath += switch (tile.piece.type) {
-            case Queen -> "queen";
-            case Rook -> "rook";
-            case King -> "king";
-            case Pawn -> "pawn";
-            case Knight -> "knight";
-            case Bishop -> "bishop";
+            case Queen -> "q";
+            case Rook -> "r";
+            case King -> "k";
+            case Pawn -> "p";
+            case Knight -> "n";
+            case Bishop -> "b";
         };
-
-        imgPath += tile.piece.alliance ? "_w" : "_b";
         imgPath += ".png";
 
         try{
             BufferedImage img = ImageIO.read(new File(imgPath));
-            final int size = 63;
+            int size = 63;
             Image scaledImage = img.getScaledInstance(size, size, Image.SCALE_SMOOTH);
             JLabel label = new JLabel(new ImageIcon(scaledImage));
             //JLabel label = new JLabel(tile.occupied ? String.valueOf(tile.piece.type) : String.valueOf(tile.index));

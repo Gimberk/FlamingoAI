@@ -2,7 +2,10 @@ import ai.evaluation.Evaluator;
 import engine.board.Board;
 import engine.board.BoardUtil;
 import engine.board.PGNWriter;
+import engine.board.Tile;
 import gui.GameFrame;
+import gui.board.BoardPanel;
+import gui.board.TilePanel;
 
 import java.io.IOException;
 
@@ -14,14 +17,18 @@ public class ChessAI {
     //public final static String startingFen = "r3k2r/pppppppp/8/8/8/8/PPPPPPPP/R3K2R";
 
     public static void main(String[] args) {
-        // Move Ordering
-        // LMR
-        // Iterative Deepening
         // Piece-Square Tables (and other eval function stuff)
         // Main Screen
         // End Game Screen
 
-        GameFrame frame = new GameFrame(startingFen, 4, true, false);
+        GameFrame frame = new GameFrame(startingFen, 4, false, true);
         frame.board.turn = true;
+        BoardUtil.switchTurn(frame.board);
+        for (final TilePanel t : frame.boardPanel.tiles){
+            t.removeAll();
+            t.update();
+            t.revalidate();
+            t.repaint();
+        }
     }
 }

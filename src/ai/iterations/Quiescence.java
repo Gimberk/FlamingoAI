@@ -54,7 +54,7 @@ public class Quiescence implements Strategy {
         final long hash = zobristHash.generateZobristKey(board);
         if (ttable.contains(hash)) return ttable.get(hash).evaluation;
 
-        if (depth == 0){
+        if (depth <= 0){
             final int eval = quiescence(board, alpha, beta);
             ttable.put(hash, eval, depth);
             return eval;

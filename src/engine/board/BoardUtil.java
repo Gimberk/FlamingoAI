@@ -5,9 +5,11 @@ import ai.Strategy;
 import engine.piece.Move;
 import engine.piece.Piece;
 import engine.piece.Type;
+import gui.board.TilePanel;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class BoardUtil {
     public static final int TILES = 64;
@@ -26,8 +28,10 @@ public class BoardUtil {
 
     public static void switchTurn(final Board board){
         if (board.turn && !board.whitePlayer || (!board.turn && !board.blackPlayer)){
-            final Move best = ai.execute(board);
-            board.makeMove(best, false);
+            final List<Move> moves = getAllianceMoves(board.turn, board);
+            board.makeMove(moves.get(new Random().nextInt(moves.size())), false);
+//            final Move best = ai.execute(board);
+//            board.makeMove(best, false);
         }
     }
 

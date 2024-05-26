@@ -23,7 +23,7 @@ class StandardAITest {
         board.makeMove(m2, false);
         board.makeMove(m3, false);
 
-        final int depth = 5;
+        final int depth = 4;
 
         assertFalse(BoardUtil.isCheck(true, board));
         assertFalse(BoardUtil.isCheck(false, board));

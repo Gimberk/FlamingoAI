@@ -15,6 +15,8 @@ public class GameFrame {
 
     public Board board;
 
+    public final String pieceSet = "icysea";
+
     public EndGameScreen endGame;
 
     public final Color lightTileColor = new Color(224, 186, 135);
