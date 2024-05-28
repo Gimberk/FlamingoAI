@@ -28,8 +28,12 @@ public class GameFrame {
     private final Dimension frameDimensions = new Dimension(600, 600);
     public final Dimension boardPanelDimensions = new Dimension(400, 600);
     public final Dimension tilePanelDimensions = new Dimension(30, 30);
+    public final Dimension titlePanelDimensions = new Dimension(600, 600);
 
     public final BoardPanel boardPanel;
+    public final TitlePanel titlePanel;
+
+    public final GameSetup setup;
 
     public final int depth;
 
@@ -42,13 +46,23 @@ public class GameFrame {
         this.depth = depth;
         this.white = white; this.black = black;
         boardPanel = new BoardPanel(this);
+        titlePanel = new TitlePanel(this);
 
         frame = createGameFrame();
+        setup = new GameSetup(frame, true, this);
 
-        frame.add(boardPanel);
+        //frame.add(boardPanel);
+        frame.add(titlePanel);
         frame.setJMenuBar(createMenuBar());
 
         frame.setVisible(true);
+    }
+
+    public void play(){
+        frame.remove(titlePanel);
+        frame.add(boardPanel);
+        frame.repaint();
+        frame.revalidate();
     }
 
     private JFrame createGameFrame(){
